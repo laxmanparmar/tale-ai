@@ -1,82 +1,62 @@
-from swarm import Swarm, Agent
+import os
+from agents.plot_agent import PlotAgent
+from agents.character_agent import CharacterAgent
+from agents.setting_agent import SettingAgent
+from agents.dialogue_agent import DialogueAgent
+from agents.conflict_agent import ConflictAgent
+from agents.editor_agent import EditorAgent
 
-# Initialize Swarm client
-client = Swarm()
+plot_agent = PlotAgent()
+character_agent = CharacterAgent()
+setting_agent = SettingAgent()
+dialogue_agent = DialogueAgent()
+conflict_agent = ConflictAgent()
+editor_agent = EditorAgent()
 
 
-# News Agent to fetch news
-plot_agent = Agent(
-    name="Plot Developer Assistant",
-    instructions="You are a Plot Developer for writing stories",
-    model="llama3.2"
-)
-
-# Editor Agent to edit news
-character_agent = Agent(
-    name="Character Developer Assistant",
-    instructions="You are a Character Developer for writing stories",
-    model="llama3.2"
-)
-
-setting_agent = Agent(
-    name="Setting Creator Assistant",
-    instructions="You are a Setting Creator for writing stories",
-    model="llama3.2"
-)
-
-dialogue_agent = Agent(
-    name="Dialogue Writer Assistant",
-    instructions="You are a Dialogue Writer for writing stories",
-    model="llama3.2"
-)
-
-conflict_agent = Agent(
-    name="Conflict Generator Assistant",
-    instructions="You are a Conflict Generator for writing stories",
-    model="llama3.2"
-)
-
-editor_agent = Agent(
-    name="Editor Assistant",
-    instructions="You are an Editor for writing stories",
-    model="llama3.2"
-)
-# 3. Create workflow
-
-def run_news_workflow(topic):
-    print("Running news Agent workflow...")
+def run_story_workflow(topic):
+    print("Running story generation workflow...")
     
-    # Step 1: Fetch news
-    news_response = client.run(
-        agent=plot_agent,
-        messages=[{"role": "user", "content": f"Write a story about {topic}"}],
-    )
+    print("Step 1: Developing plot...")
+    plot_content = plot_agent.develop_plot(topic)
+    print(f"Plot developed: {len(plot_content)} characters")
     
-    raw_news = news_response.messages[-1]["content"]
+    print("Step 2: Developing characters...")
+    character_content = character_agent.develop_characters(plot_content)
+    print(f"Characters developed: {len(character_content)} characters")
     
-    # Step 2: Pass news to editor for final review
-    edited_news_response = client.run(
-        agent=character_agent,
-        messages=[{"role": "user", "content": raw_news }],
-    )
+    print("Step 3: Creating setting...")
+    setting_content = setting_agent.create_setting(character_content, plot_content)
+    print(f"Setting created: {len(setting_content)} characters")
     
-    raw_editor_news = edited_news_response.messages[-1]["content"]
+    print("Step 4: Generating conflicts...")
+    conflict_content = conflict_agent.generate_conflicts(setting_content, character_content)
+    print(f"Conflicts generated: {len(conflict_content)} characters")
     
-    # Step 2: Pass news to editor for final review
-    edited_setting_response = client.run(
-        agent=setting_agent,
-        messages=[{"role": "user", "content": raw_editor_news }],
-    )
+    print("Step 5: Writing dialogue...")
+    dialogue_content = dialogue_agent.write_dialogue(conflict_content, setting_content)
+    print(f"Dialogue written: {len(dialogue_content)} characters")
+    
+    print("Step 6: Final editing...")
+    final_story = editor_agent.edit_story(dialogue_content, conflict_content)
+    print(f"Final story: {len(final_story)} characters")
+    
+    return final_story
 
-    raw_setting_news = edited_setting_response.messages[-1]["content"]
+if __name__ == "__main__":
+    topic = "In a world where magic has been outlawed, a young sorcerer discovers an ancient artifact that could change everything."
     
-    # Step 2: Pass news to editor for final review
-    edited_news_response = client.run(
-        agent=editor_agent,
-        messages=[{"role": "user", "content": raw_setting_news }],
-    )
-
-    return edited_news_response.messages[-1]["content"]
-
-# Example of running the news workflow for a given topic
-print(run_news_workflow("In a world where magic has been outlawed, a young sorcerer discovers an ancient artifact that could change everything."))
+    print("=" * 80)
+    print("TALE-AI: AI-Powered Story Generation")
+    print("=" * 80)
+    print(f"Topic: {topic}")
+    print("=" * 80)
+    
+    
+    final_story = run_story_workflow(topic)
+    
+    print("\n" + "=" * 80)
+    print("FINAL STORY")
+    print("=" * 80)
+    print(final_story)
+    print("=" * 80)
