@@ -39,6 +39,21 @@ export OPENAI_BASE_URL=http://localhost:1234/v1
 
 ## Usage
 
+### Option 1: Web API (Recommended)
+
+1. Start LM Studio and load your Llama 3.2 model
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+3. Start the FastAPI server:
+```bash
+python start_server.py
+```
+4. Open `client.html` in your browser or visit http://localhost:8000/docs
+
+### Option 2: Command Line
+
 1. Start LM Studio and load your Llama 3.2 model
 2. Run the story generation:
 ```bash
@@ -58,8 +73,10 @@ tale-ai/
 │   ├── conflict_agent.py  # Conflict generation agent
 │   └── editor_agent.py    # Final editing agent
 ├── llm.py                 # Single LLM instance for all agents
-├── app.py                 # Main application
-├── example_switch_model.py # Example of model switching
+├── api.py                 # FastAPI application with streaming
+├── app.py                 # Command line application
+├── start_server.py        # Server startup script
+├── client.html            # Web client interface
 ├── requirements.txt       # Python dependencies
 └── README.md             # This file
 ```
@@ -89,6 +106,26 @@ The system uses a simple centralized LLM module (`llm.py`) that creates a single
 - `TEMPERATURE` - Model temperature (default: "0.7")
 - `MAX_TOKENS` - Maximum tokens (default: "2000")
 
+
+## API Endpoints
+
+- `POST /generate-story` - Generate a story with streaming response
+- `GET /health` - Health check endpoint
+- `GET /config` - Get current LLM configuration
+- `GET /docs` - Interactive API documentation
+
+## Streaming Response Format
+
+The API returns JSON chunks with the following structure:
+```json
+{
+  "type": "step|content|complete|error",
+  "step": "Current step description",
+  "progress": 0.0-1.0,
+  "content": "Generated content (if applicable)",
+  "error": "Error message (if error type)"
+}
+```
 
 ## Customization
 
